@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fffbf7;
+    color: #1c1917;
+}
+
+h1, h2, h3 {
+    font-family: Georgia, 'Times New Roman', serif;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.post-content h1, .post-content h2, .post-content h3 {
+    font-family: Georgia, serif;
+    color: #1c1917;
+    margin: 16px 0 8px;
+}
+
+.post-content p {
+    margin-bottom: 12px;
+    line-height: 1.9;
+}
+
+.post-content img {
+    max-width: 100%;
+    border-radius: 12px;
+    margin: 12px 0;
+}
+
+.post-content ul, .post-content ol {
+    padding-left: 24px;
+    margin-bottom: 12px;
+}
+
+.post-content li {
+    margin-bottom: 6px;
+    line-height: 1.7;
+}
+
+.post-content strong {
+    color: #1c1917;
+    font-weight: 700;
+}
+
+.post-content a {
+    color: #f59e2a;
+    text-decoration: underline;
+}
+
+.post-content blockquote {
+    border-left: 3px solid #fde8c8;
+    padding-left: 16px;
+    color: #78716c;
+    margin: 12px 0;
+    font-style: italic;
+}
