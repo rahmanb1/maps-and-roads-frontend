@@ -16,6 +16,8 @@ const PostCard = ({ post }: PostCardProps) => {
     const subtext = isDark ? '#a8a29e' : '#78716c';
     const footerBorder = isDark ? '#44403c' : '#fef3e2';
 
+    const readTime = Math.max(1, Math.ceil(post.content.split(/\s+/).length / 200));
+
     return (
         <div style={{
             backgroundColor: card,
@@ -109,19 +111,27 @@ const PostCard = ({ post }: PostCardProps) => {
                 </p>
 
                 <div style={{
-                    display: 'flex', justifyContent: 'space-between',
-                    alignItems: 'center', paddingTop: '14px',
+                    paddingTop: '14px',
                     borderTop: `1px solid ${footerBorder}`,
-                    gap: '8px'
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'
                 }}>
-                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', flex: 1, minWidth: 0 }}>
-                        <span style={{ color: '#a8a29e', fontSize: '12px', whiteSpace: 'nowrap' }}>👁️ {post.viewCount}</span>
-                        <span style={{ color: '#a8a29e', fontSize: '12px', whiteSpace: 'nowrap' }}>❤️ {post.likeCount}</span>
-                        <span style={{ color: '#a8a29e', fontSize: '12px', whiteSpace: 'nowrap' }}>✍️ {post.username}</span>
-                        <span style={{ color: '#a8a29e', fontSize: '12px', whiteSpace: 'nowrap' }}>🕐 {formatDate(post.createdAt)}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <span style={{ color: '#a8a29e', fontSize: '11px' }}>👁️ {post.viewCount}</span>
+                            <span style={{ color: '#a8a29e', fontSize: '11px' }}>❤️ {post.likeCount}</span>
+                            <span style={{ color: '#a8a29e', fontSize: '11px' }}>✍️ {post.username}</span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <span style={{ color: '#a8a29e', fontSize: '11px' }}>🕐 {formatDate(post.createdAt)}</span>
+                            <span style={{
+                                backgroundColor: isDark ? '#44403c' : '#fef3e2',
+                                color: '#e07f0a', fontSize: '11px', fontWeight: 600,
+                                padding: '2px 8px', borderRadius: '20px'
+                            }}>📖 {readTime} dəq oxu</span>
+                        </div>
                     </div>
                     <Link to={`/posts/${post.id}`}
-                          style={{ color: '#f59e2a', fontSize: '13px', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                          style={{ color: '#f59e2a', fontSize: '13px', fontWeight: 600, textDecoration: 'none', flexShrink: 0 }}>
                         Oxu →
                     </Link>
                 </div>
