@@ -37,7 +37,7 @@ const PostCard = ({ post }: PostCardProps) => {
 
             {post.imageUrl ? (
                 <div style={{ height: '200px', overflow: 'hidden', position: 'relative' }}>
-                    <img src={`https://maps-and-roads-backend-production.up.railway.app${post.imageUrl}`} alt={post.title}
+                    <img src={post.imageUrl?.startsWith('http') ? post.imageUrl : `https://maps-and-roads-backend-production.up.railway.app${post.imageUrl}`} alt={post.title}
                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     {post.categoryName && (
                         <div style={{
