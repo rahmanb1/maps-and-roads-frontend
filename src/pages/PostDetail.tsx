@@ -73,7 +73,7 @@ const CommentItem = ({
         borderRadius: '50%', overflow: 'hidden', flexShrink: 0
     }}>
         {comment.avatarUrl ? (
-            <img src={`http://localhost:8080${comment.avatarUrl}`}
+            <img src={comment.avatarUrl?.startsWith("http") ? comment.avatarUrl : `https://maps-and-roads-backend-production.up.railway.app${comment.avatarUrl}`}
                  alt={comment.username}
                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
@@ -247,7 +247,7 @@ const PostDetail = () => {
     const fetchLikers = async () => {
         try {
             const response = await api.get(`/likes/post/${id}/users`);
-            setLikers(response.data);
+            setLikers(Array.isArray(response.data) ? response.data : []);
             if (isAuthenticated && user?.username) {
                 const myLike = response.data.find(
                     (l: { username: string; reactionType: string }) => l.username === user.username
@@ -322,7 +322,7 @@ const PostDetail = () => {
                 <meta name="description" content={post.content.replace(/[#*`]/g, '').slice(0, 155)} />
                 <meta property="og:title" content={post.title} />
                 <meta property="og:description" content={post.content.replace(/[#*`]/g, '').slice(0, 155)} />
-                {post.imageUrl && <meta property="og:image" content={`http://localhost:8080${post.imageUrl}`} />}
+                {post.imageUrl && <meta property="og:image" content={post.imageUrl?.startsWith("http") ? post.imageUrl : `https://maps-and-roads-backend-production.up.railway.app${post.imageUrl}`} />}
                 <meta property="og:type" content="article" />
                 <meta property="article:author" content={post.username} />
                 <meta property="og:url" content={window.location.href} />
@@ -410,7 +410,7 @@ const PostDetail = () => {
                 <div style={{ backgroundColor: card, border: `1px solid ${border}`, borderRadius: '20px', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
                     {post.imageUrl ? (
                         <div style={{ height: '320px', overflow: 'hidden' }}>
-                            <img src={`http://localhost:8080${post.imageUrl}`} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={post.imageUrl?.startsWith("http") ? post.imageUrl : `https://maps-and-roads-backend-production.up.railway.app${post.imageUrl}`} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
                     ) : (
                         <div style={{ height: '180px', background: isDark ? 'linear-gradient(135deg, #292524, #44403c)' : 'linear-gradient(135deg, #fef3e2, #fde8c8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '52px' }}>🌍</div>
