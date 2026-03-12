@@ -56,13 +56,13 @@ const Login = () => {
     };
 
     const handleGoogleLogin = () => {
-        window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+        window.location.href = 'https://maps-and-roads-backend-production.up.railway.app/oauth2/authorization/google';
     };
 
     return (
         <div style={{ backgroundColor: bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', transition: 'background-color 0.3s' }}>
             <Helmet>
-                <title>Giriş — Maps & Roads</title>
+                <title>Giriş — TravelBlog</title>
                 <meta name="robots" content="noindex" />
             </Helmet>
             <div style={{ width: '100%', maxWidth: '400px' }}>
@@ -140,7 +140,7 @@ const Login = () => {
                         Google ilə daxil ol
                     </button>
 
-                    <button onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/facebook'}
+                    <button onClick={() => window.location.href = 'https://maps-and-roads-backend-production.up.railway.app/oauth2/authorization/facebook'}
                             style={{
                                 width: '100%', padding: '12px', borderRadius: '12px',
                                 border: `1px solid ${border}`, backgroundColor: card, color: text,
