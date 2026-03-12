@@ -13,8 +13,8 @@ const OAuth2Success = () => {
                 const response = await api.get('/auth/oauth2/token', {
                     withCredentials: true
                 });
-                const { token, username, email, role } = response.data;
-                login(token, username, email, role);
+                const { token, username, email, role, avatarUrl } = response.data;
+                login({ token, username, email, role, avatarUrl });
                 navigate('/');
             } catch {
                 navigate('/login?error=oauth2');
