@@ -35,7 +35,7 @@ const PostCard = ({ post }: PostCardProps) => {
 
             {post.imageUrl ? (
                 <div style={{ height: '200px', overflow: 'hidden', position: 'relative' }}>
-                    <img src={`http://localhost:8080${post.imageUrl}`} alt={post.title}
+                    <img src={`https://maps-and-roads-backend-production.up.railway.app${post.imageUrl}`} alt={post.title}
                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     {post.categoryName && (
                         <div style={{
@@ -111,16 +111,17 @@ const PostCard = ({ post }: PostCardProps) => {
                 <div style={{
                     display: 'flex', justifyContent: 'space-between',
                     alignItems: 'center', paddingTop: '14px',
-                    borderTop: `1px solid ${footerBorder}`
+                    borderTop: `1px solid ${footerBorder}`,
+                    gap: '8px'
                 }}>
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                        <span style={{ color: '#a8a29e', fontSize: '12px' }}>👁️ {post.viewCount}</span>
-                        <span style={{ color: '#a8a29e', fontSize: '12px' }}>❤️ {post.likeCount}</span>
-                        <span style={{ color: '#a8a29e', fontSize: '12px' }}>✍️ {post.username}</span>
-                        <span style={{ color: '#a8a29e', fontSize: '12px' }}>🕐 {formatDate(post.createdAt)}</span>
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', flex: 1, minWidth: 0 }}>
+                        <span style={{ color: '#a8a29e', fontSize: '12px', whiteSpace: 'nowrap' }}>👁️ {post.viewCount}</span>
+                        <span style={{ color: '#a8a29e', fontSize: '12px', whiteSpace: 'nowrap' }}>❤️ {post.likeCount}</span>
+                        <span style={{ color: '#a8a29e', fontSize: '12px', whiteSpace: 'nowrap' }}>✍️ {post.username}</span>
+                        <span style={{ color: '#a8a29e', fontSize: '12px', whiteSpace: 'nowrap' }}>🕐 {formatDate(post.createdAt)}</span>
                     </div>
                     <Link to={`/posts/${post.id}`}
-                          style={{ color: '#f59e2a', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+                          style={{ color: '#f59e2a', fontSize: '13px', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
                         Oxu →
                     </Link>
                 </div>
