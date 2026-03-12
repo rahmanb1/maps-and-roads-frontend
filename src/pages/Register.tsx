@@ -52,8 +52,8 @@ const Register = () => {
     return (
         <div style={{ backgroundColor: bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', transition: 'background-color 0.3s' }}>
             <Helmet>
-                <title>Qeydiyyat — Maps & Roads</title>
-                <meta name="description" content="Maps & Roads-a qoşulun və səyahət hekayənizi dünya ilə paylaşın." />
+                <title>Qeydiyyat — TravelBlog</title>
+                <meta name="description" content="TravelBlog-a qoşulun və səyahət hekayənizi dünya ilə paylaşın." />
                 <meta name="robots" content="noindex" />
             </Helmet>
             <div style={{ width: '100%', maxWidth: '400px' }}>
@@ -115,7 +115,7 @@ const Register = () => {
                                 </div>
                             )}
 
-                            <button onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/google'}
+                            <button onClick={() => window.location.href = 'https://maps-and-roads-backend-production.up.railway.app/oauth2/authorization/google'}
                                     style={{
                                         width: '100%', padding: '12px', borderRadius: '12px',
                                         border: `1px solid ${border}`, backgroundColor: card, color: text,
@@ -135,7 +135,7 @@ const Register = () => {
                                 Google ilə qeydiyyat
                             </button>
 
-                            <button onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/facebook'}
+                            <button onClick={() => window.location.href = 'https://maps-and-roads-backend-production.up.railway.app/oauth2/authorization/facebook'}
                                     style={{
                                         width: '100%', padding: '12px', borderRadius: '12px',
                                         border: `1px solid ${border}`, backgroundColor: card, color: text,
