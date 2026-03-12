@@ -1,5 +1,7 @@
 export const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
+    // Server UTC göndərir, UTC kimi parse et
+    const utcString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+    const date = new Date(utcString);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
 
