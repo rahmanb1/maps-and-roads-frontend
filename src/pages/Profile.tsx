@@ -200,7 +200,7 @@ const Profile = () => {
     return (
         <div style={{ backgroundColor: bg, minHeight: '100vh', paddingTop: '40px', paddingBottom: '60px', transition: 'background-color 0.3s' }}>
             <Helmet>
-                <title>{profile.username} — Profil | Maps & Roads</title>
+                <title>{profile.username} — Profil | TravelBlog</title>
                 <meta name="robots" content="noindex" />
             </Helmet>
 
@@ -217,7 +217,7 @@ const Profile = () => {
                                     onClick={() => avatarInputRef.current?.click()}
                                     style={{ width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', cursor: 'pointer', position: 'relative', boxShadow: '0 4px 12px rgba(245,158,42,0.35)' }}>
                                     {profile.avatarUrl ? (
-                                        <img src={`http://localhost:8080${profile.avatarUrl}`} alt={profile.username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <img src={profile.avatarUrl?.startsWith("http") ? profile.avatarUrl : `https://maps-and-roads-backend-production.up.railway.app${profile.avatarUrl}`} alt={profile.username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     ) : (
                                         <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #f59e2a, #e07f0a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 700, color: '#ffffff' }}>
                                             {profile.username.charAt(0).toUpperCase()}
@@ -479,7 +479,7 @@ const Profile = () => {
                                                 <div style={{ minWidth: '180px' }}>
                                                     {post.imageUrl && (
                                                         <img
-                                                            src={`http://localhost:8080${post.imageUrl}`}
+                                                            src={post.imageUrl?.startsWith("http") ? post.imageUrl : `https://maps-and-roads-backend-production.up.railway.app${post.imageUrl}`}
                                                             alt={post.title}
                                                             style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px', marginBottom: '8px' }}
                                                         />
