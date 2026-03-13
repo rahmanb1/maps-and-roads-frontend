@@ -6,7 +6,7 @@ import PostCard from '../components/PostCard';
 import type { Post } from '../types';
 import { useTheme } from '../context/ThemeContext';
 import { Helmet } from 'react-helmet-async';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polygon, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -17,6 +17,30 @@ L.Icon.Default.mergeOptions({
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
+
+// Nominatim-dən polygon gətir
+async function fetchPolygon(location: string): Promise<[number, number][][] | null> {
+    try {
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&polygon_geojson=1&limit=1`;
+        const res = await fetch(url, { headers: { 'Accept-Language': 'az,en' } });
+        const data = await res.json();
+        if (!data || data.length === 0) return null;
+        const geo = data[0].geojson;
+        if (!geo) return null;
+        const toLatLng = (coords: number[]): [number, number] => [coords[1], coords[0]];
+        if (geo.type === 'Polygon') return [geo.coordinates[0].map(toLatLng)];
+        if (geo.type === 'MultiPolygon') return geo.coordinates.map((poly: number[][][]) => poly[0].map(toLatLng));
+        return null;
+    } catch { return null; }
+}
+
+const FlyToMarker = ({ post }: { post: MapPost | null }) => {
+    const map = useMap();
+    useEffect(() => {
+        if (post) map.flyTo([post.latitude, post.longitude], 10, { duration: 1.2 });
+    }, [post]);
+    return null;
+};
 
 interface ProfileData {
     id: number;
@@ -53,6 +77,10 @@ const Profile = () => {
     const [bookmarksLoading, setBookmarksLoading] = useState(false);
     const [mapPosts, setMapPosts] = useState<MapPost[]>([]);
     const [mapLoading, setMapLoading] = useState(false);
+    const [selectedMapPost, setSelectedMapPost] = useState<MapPost | null>(null);
+    const [polygon, setPolygon] = useState<[number, number][][] | null>(null);
+    const [polygonLoading, setPolygonLoading] = useState(false);
+    const polygonCache = useRef<Record<string, [number, number][][] | null>>({});
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
     const [newUsername, setNewUsername] = useState('');
@@ -95,6 +123,18 @@ const Profile = () => {
         if (activeTab === 'bookmarks') fetchBookmarks();
         if (activeTab === 'map') fetchMapPosts();
     }, [activeTab]);
+
+    useEffect(() => {
+        if (!selectedMapPost?.location) { setPolygon(null); return; }
+        const loc = selectedMapPost.location;
+        if (loc in polygonCache.current) { setPolygon(polygonCache.current[loc]); return; }
+        setPolygonLoading(true);
+        fetchPolygon(loc).then(result => {
+            polygonCache.current[loc] = result;
+            setPolygon(result);
+            setPolygonLoading(false);
+        });
+    }, [selectedMapPost]);
 
     const fetchProfile = async () => {
         try {
@@ -467,35 +507,59 @@ const Profile = () => {
                                 </button>
                             </div>
                         ) : (
-                            <div style={{ borderRadius: '20px', overflow: 'hidden', border: `1px solid ${border}`, boxShadow: '0 4px 24px rgba(0,0,0,0.1)', height: '500px' }}>
-                                <MapContainer center={mapCenter} zoom={4} style={{ height: '100%', width: '100%' }}>
-                                    <TileLayer
-                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                        attribution='&copy; OpenStreetMap'
-                                    />
-                                    {mapPosts.map((post) => (
-                                        <Marker key={post.id} position={[post.latitude, post.longitude]}>
-                                            <Popup>
-                                                <div style={{ minWidth: '180px' }}>
-                                                    {post.imageUrl && (
-                                                        <img
-                                                            src={post.imageUrl?.startsWith("http") ? post.imageUrl : `https://maps-and-roads-backend-production.up.railway.app${post.imageUrl}`}
-                                                            alt={post.title}
-                                                            style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px', marginBottom: '8px' }}
-                                                        />
-                                                    )}
-                                                    <p style={{ fontWeight: 700, fontSize: '14px', marginBottom: '4px', color: '#1c1917' }}>{post.title}</p>
-                                                    {post.location && <p style={{ fontSize: '12px', color: '#78716c', marginBottom: '8px' }}>📍 {post.location}</p>}
-                                                    <a
-                                                        href={`/posts/${post.id}`}
-                                                        style={{ display: 'block', backgroundColor: '#f59e2a', color: '#fff', textAlign: 'center', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', fontSize: '12px', fontWeight: 600 }}>
-                                                        Oxu →
-                                                    </a>
-                                                </div>
-                                            </Popup>
-                                        </Marker>
+                            <div style={{ display: 'flex', height: '500px', border: `1px solid ${border}`, borderRadius: '20px', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.1)' }}>
+                                {/* Sol panel */}
+                                <div style={{ width: '240px', flexShrink: 0, backgroundColor: card, borderRight: `1px solid ${border}`, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+                                    <div style={{ padding: '12px 14px', borderBottom: `1px solid ${border}`, position: 'sticky', top: 0, backgroundColor: card, zIndex: 1 }}>
+                                        <p style={{ color: subtext, fontSize: '11px', fontWeight: 600 }}>{mapPosts.length} məkan</p>
+                                    </div>
+                                    {mapPosts.map(post => (
+                                        <div key={post.id} onClick={() => setSelectedMapPost(post)}
+                                             style={{
+                                                 padding: '10px 14px', borderBottom: `1px solid ${border}`, cursor: 'pointer',
+                                                 backgroundColor: selectedMapPost?.id === post.id ? (isDark ? '#3a2e1e' : '#fef3e2') : 'transparent',
+                                                 borderLeft: selectedMapPost?.id === post.id ? '3px solid #f59e2a' : '3px solid transparent',
+                                                 transition: 'background-color 0.15s',
+                                             }}>
+                                            <p style={{ color: text, fontSize: '12px', fontWeight: 600, marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.title}</p>
+                                            {post.location && (
+                                                <p style={{ color: '#f59e2a', fontSize: '11px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                    📍 {post.location}
+                                                    {polygonLoading && selectedMapPost?.id === post.id && <span style={{ color: '#a8a29e', marginLeft: '4px' }}>↻</span>}
+                                                </p>
+                                            )}
+                                        </div>
                                     ))}
-                                </MapContainer>
+                                </div>
+
+                                {/* Xəritə */}
+                                <div style={{ flex: 1 }}>
+                                    <MapContainer center={mapCenter} zoom={4} style={{ height: '100%', width: '100%' }}>
+                                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap' />
+                                        <FlyToMarker post={selectedMapPost} />
+                                        {polygon && polygon.map((ring, i) => (
+                                            <Polygon key={i} positions={ring} pathOptions={{ color: '#f59e2a', fillColor: '#22c55e', fillOpacity: 0.25, weight: 2, opacity: 0.8 }} />
+                                        ))}
+                                        {mapPosts.map((post) => (
+                                            <Marker key={post.id} position={[post.latitude, post.longitude]}
+                                                    eventHandlers={{ click: () => setSelectedMapPost(post) }}>
+                                                <Popup>
+                                                    <div style={{ minWidth: '180px' }}>
+                                                        {post.imageUrl && (
+                                                            <img src={post.imageUrl?.startsWith("http") ? post.imageUrl : `https://maps-and-roads-backend-production.up.railway.app${post.imageUrl}`}
+                                                                 alt={post.title} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px', marginBottom: '8px' }} />
+                                                        )}
+                                                        <p style={{ fontWeight: 700, fontSize: '14px', marginBottom: '4px', color: '#1c1917' }}>{post.title}</p>
+                                                        {post.location && <p style={{ fontSize: '12px', color: '#78716c', marginBottom: '8px' }}>📍 {post.location}</p>}
+                                                        <a href={`/posts/${post.id}`} style={{ display: 'block', backgroundColor: '#f59e2a', color: '#fff', textAlign: 'center', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', fontSize: '12px', fontWeight: 600 }}>
+                                                            Oxu →
+                                                        </a>
+                                                    </div>
+                                                </Popup>
+                                            </Marker>
+                                        ))}
+                                    </MapContainer>
+                                </div>
                             </div>
                         )}
                     </div>
