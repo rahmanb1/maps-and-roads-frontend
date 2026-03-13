@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useTheme } from '../context/ThemeContext';
 import { Helmet } from 'react-helmet-async';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Polygon } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Leaflet default icon fix
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -27,7 +26,6 @@ interface MapPost {
     categoryIcon: string;
 }
 
-// Xəritəni seçilmiş postun üzərinə aparan komponent
 const FlyToMarker = ({ post }: { post: MapPost | null }) => {
     const map = useMap();
     useEffect(() => {
@@ -38,6 +36,34 @@ const FlyToMarker = ({ post }: { post: MapPost | null }) => {
     return null;
 };
 
+// Nominatim-dən polygon gətir
+async function fetchPolygon(location: string): Promise<[number, number][][] | null> {
+    try {
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&polygon_geojson=1&limit=1`;
+        const res = await fetch(url, { headers: { 'Accept-Language': 'az,en' } });
+        const data = await res.json();
+        if (!data || data.length === 0) return null;
+
+        const geo = data[0].geojson;
+        if (!geo) return null;
+
+        // GeoJSON-dan Leaflet [lat, lng] formatına çevir
+        const toLatLng = (coords: number[]): [number, number] => [coords[1], coords[0]];
+
+        if (geo.type === 'Polygon') {
+            return [geo.coordinates[0].map(toLatLng)];
+        } else if (geo.type === 'MultiPolygon') {
+            return geo.coordinates.map((poly: number[][][]) => poly[0].map(toLatLng));
+        } else if (geo.type === 'Point' || geo.type === 'LineString') {
+            // Polygon yoxdur, marker kifayətdir
+            return null;
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}
+
 const TravelMap = () => {
     const { isDark } = useTheme();
     const navigate = useNavigate();
@@ -46,6 +72,9 @@ const TravelMap = () => {
     const [selectedPost, setSelectedPost] = useState<MapPost | null>(null);
     const [search, setSearch] = useState('');
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
+    const [polygon, setPolygon] = useState<[number, number][][] | null>(null);
+    const [polygonLoading, setPolygonLoading] = useState(false);
+    const polygonCache = useRef<Record<string, [number, number][][] | null>>({});
 
     const bg = isDark ? '#1c1917' : '#fffbf7';
     const card = isDark ? '#292524' : '#ffffff';
@@ -57,6 +86,28 @@ const TravelMap = () => {
         fetchMapPosts();
     }, []);
 
+    // Post seçiləndə polygon yüklə
+    useEffect(() => {
+        if (!selectedPost?.location) {
+            setPolygon(null);
+            return;
+        }
+        const loc = selectedPost.location;
+
+        // Cache-də varsa birbaşa istifadə et
+        if (loc in polygonCache.current) {
+            setPolygon(polygonCache.current[loc]);
+            return;
+        }
+
+        setPolygonLoading(true);
+        fetchPolygon(loc).then(result => {
+            polygonCache.current[loc] = result;
+            setPolygon(result);
+            setPolygonLoading(false);
+        });
+    }, [selectedPost]);
+
     const fetchMapPosts = async () => {
         try {
             const res = await api.get('/posts/map');
@@ -65,7 +116,6 @@ const TravelMap = () => {
         finally { setLoading(false); }
     };
 
-    // Unikal kateqoriyalar
     const categories = Array.from(
         new Map(
             posts
@@ -74,7 +124,6 @@ const TravelMap = () => {
         ).values()
     );
 
-    // Filter
     const filteredPosts = posts.filter(p => {
         const matchSearch = search.trim() === '' ||
             p.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -89,7 +138,7 @@ const TravelMap = () => {
     return (
         <div style={{ backgroundColor: bg, minHeight: '100vh', transition: 'background-color 0.3s' }}>
             <Helmet>
-                <title>Səyahət Xəritəsi | TravelBlog</title>
+                <title>Səyahət Xəritəsi | Maps & Roads</title>
                 <meta name="description" content="Bütün səyahətçilərin getdiyi məkanlar xəritədə" />
             </Helmet>
 
@@ -113,7 +162,6 @@ const TravelMap = () => {
                         </p>
                     </div>
 
-                    {/* Axtarış */}
                     <div style={{ position: 'relative', minWidth: '260px' }}>
                         <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', pointerEvents: 'none' }}>🔍</span>
                         <input
@@ -133,7 +181,6 @@ const TravelMap = () => {
                     </div>
                 </div>
 
-                {/* Kateqoriya filterləri */}
                 {categories.length > 0 && (
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
                         <button
@@ -169,7 +216,7 @@ const TravelMap = () => {
             {/* Əsas məzmun */}
             <div style={{ display: 'flex', gap: '0', maxWidth: '1200px', margin: '0 auto', padding: '0 24px 40px', height: '560px' }}>
 
-                {/* Sol panel — post siyahısı */}
+                {/* Sol panel */}
                 <div style={{
                     width: '300px', flexShrink: 0,
                     backgroundColor: card, border: `1px solid ${border}`,
@@ -234,6 +281,9 @@ const TravelMap = () => {
                                         {post.location && (
                                             <p style={{ color: '#f59e2a', fontSize: '11px', marginBottom: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                 📍 {post.location}
+                                                {polygonLoading && selectedPost?.id === post.id && (
+                                                    <span style={{ color: '#a8a29e', marginLeft: '6px' }}>↻</span>
+                                                )}
                                             </p>
                                         )}
                                         <p style={{ color: subtext, fontSize: '11px' }}>
@@ -255,6 +305,22 @@ const TravelMap = () => {
                             attribution='&copy; OpenStreetMap'
                         />
                         <FlyToMarker post={selectedPost} />
+
+                        {/* Seçilmiş məkanın polygon-u */}
+                        {polygon && polygon.map((ring, i) => (
+                            <Polygon
+                                key={i}
+                                positions={ring}
+                                pathOptions={{
+                                    color: '#f59e2a',
+                                    fillColor: '#22c55e',
+                                    fillOpacity: 0.25,
+                                    weight: 2,
+                                    opacity: 0.8,
+                                }}
+                            />
+                        ))}
+
                         {filteredPosts.map(post => (
                             <Marker
                                 key={post.id}
