@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Admin və şəxsi səhifələri bloklayırıq
+Disallow: /admin
+Disallow: /profile
+Disallow: /messages
+Disallow: /create
+Disallow: /edit
+Disallow: /oauth2/
+
+# Sitemap
+Sitemap: https://mapsandroads.az/sitemap.xml
