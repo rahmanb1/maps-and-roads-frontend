@@ -1,5 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
 const BACKEND = 'https://maps-and-roads-backend-production.up.railway.app/api';
 const SITE_URL = 'https://mapsandroads.az';
 
@@ -9,7 +7,8 @@ interface Post {
   createdAt?: string;
 }
 
-export default async function handler(_req: VercelRequest, res: VercelResponse) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default async function handler(_req: any, res: any) {
   try {
     // Bütün postları yüklə (böyük saytlar üçün pagination əlavə etmək olar)
     let allPosts: Post[] = [];
