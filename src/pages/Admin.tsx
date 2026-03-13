@@ -32,7 +32,6 @@ const Admin = () => {
     const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'posts' | 'categories'>('stats');
     const [loading, setLoading] = useState(true);
     const [newCategoryName, setNewCategoryName] = useState('');
-    const [newCategoryIcon, setNewCategoryIcon] = useState('');
     const [categoryError, setCategoryError] = useState('');
     const [dialog, setDialog] = useState<ConfirmDialog>({ open: false, message: '', type: 'confirm', onConfirm: () => {} });
 
@@ -93,8 +92,8 @@ const Admin = () => {
         e.preventDefault(); setCategoryError('');
         if (!newCategoryName.trim()) { setCategoryError('Kateqoriya adı boş ola bilməz'); return; }
         try {
-            const response = await api.post('/categories', { name: newCategoryName.trim(), icon: newCategoryIcon.trim() || '🌍' });
-            setCategories(prev => [...prev, response.data]); setNewCategoryName(''); setNewCategoryIcon('');
+            const response = await api.post('/categories', { name: newCategoryName.trim(), icon: '🌍' });
+            setCategories(prev => [...prev, response.data]); setNewCategoryName('');
             openDialog('Kateqoriya uğurla əlavə edildi!', () => closeDialog(), 'success');
         } catch { setCategoryError('Bu kateqoriya artıq mövcuddur'); }
     };
@@ -269,13 +268,13 @@ const Admin = () => {
                                             )}
                                             {p.status === 'APPROVED' && (
                                                 <span style={{ backgroundColor: isDark ? '#14532d' : '#f0fdf4', color: '#16a34a', fontSize: '12px', fontWeight: 600, padding: '4px 10px', borderRadius: '20px' }}>
-                                                        ✓ Təsdiqlənib
-                                                    </span>
+                                                    ✓ Təsdiqlənib
+                                                </span>
                                             )}
                                             {p.status === 'REJECTED' && (
                                                 <span style={{ backgroundColor: isDark ? '#3b1f1f' : '#fef2f2', color: '#dc2626', fontSize: '12px', fontWeight: 600, padding: '4px 10px', borderRadius: '20px' }}>
-                                                        ✗ Rədd edilib
-                                                    </span>
+                                                    ✗ Rədd edilib
+                                                </span>
                                             )}
                                             <button onClick={() => handleDeletePost(p.id)}
                                                     style={{ backgroundColor: isDark ? '#3b1f1f' : '#fef2f2', color: '#dc2626', border: 'none', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'Segoe UI, sans-serif' }}>
@@ -304,10 +303,6 @@ const Admin = () => {
                                 <div style={{ flex: 1, minWidth: '160px' }}>
                                     <label style={{ color: isDark ? '#a8a29e' : '#44403c', fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '6px' }}>Kateqoriya adı</label>
                                     <input type="text" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} style={inputStyle} placeholder="Məsələn: Avropa" />
-                                </div>
-                                <div style={{ width: '120px' }}>
-                                    <label style={{ color: isDark ? '#a8a29e' : '#44403c', fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '6px' }}>İkon (emoji)</label>
-                                    <input type="text" value={newCategoryIcon} onChange={(e) => setNewCategoryIcon(e.target.value)} style={inputStyle} placeholder="🌍" />
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                                     <button type="submit" style={{ backgroundColor: '#f59e2a', color: '#ffffff', padding: '12px 24px', borderRadius: '12px', border: 'none', fontSize: '14px', fontWeight: 600, cursor: 'pointer', fontFamily: 'Segoe UI, sans-serif', whiteSpace: 'nowrap' }}>
