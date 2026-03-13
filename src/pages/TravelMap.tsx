@@ -89,7 +89,7 @@ const TravelMap = () => {
     return (
         <div style={{ backgroundColor: bg, minHeight: '100vh', transition: 'background-color 0.3s' }}>
             <Helmet>
-                <title>Səyahət Xəritəsi | Maps & Roads</title>
+                <title>Səyahət Xəritəsi | TravelBlog</title>
                 <meta name="description" content="Bütün səyahətçilərin getdiyi məkanlar xəritədə" />
             </Helmet>
 
@@ -218,7 +218,7 @@ const TravelMap = () => {
                                 <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                                     {post.imageUrl ? (
                                         <img
-                                            src={`http://localhost:8080${post.imageUrl}`}
+                                            src={post.imageUrl?.startsWith("http") ? post.imageUrl : `https://maps-and-roads-backend-production.up.railway.app${post.imageUrl}`}
                                             alt={post.title}
                                             style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
                                         />
@@ -265,7 +265,7 @@ const TravelMap = () => {
                                     <div style={{ minWidth: '200px' }}>
                                         {post.imageUrl && (
                                             <img
-                                                src={`http://localhost:8080${post.imageUrl}`}
+                                                src={post.imageUrl?.startsWith("http") ? post.imageUrl : `https://maps-and-roads-backend-production.up.railway.app${post.imageUrl}`}
                                                 alt={post.title}
                                                 style={{ width: '100%', height: '110px', objectFit: 'cover', borderRadius: '8px', marginBottom: '8px' }}
                                             />
