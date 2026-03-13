@@ -89,7 +89,7 @@ const Chat = () => {
         const username = user.username;
 
         const client = new Client({
-            webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+            webSocketFactory: () => new SockJS('https://maps-and-roads-backend-production.up.railway.app/ws'),
             connectHeaders: { Authorization: `Bearer ${token}` },
             reconnectDelay: 5000,
             onConnect: () => {
@@ -242,7 +242,7 @@ const Chat = () => {
     const Avatar = ({ username, avatarUrl, size = 40 }: { username: string; avatarUrl?: string; size?: number }) => (
         <div style={{ width: size, height: size, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
             {avatarUrl ? (
-                <img src={`http://localhost:8080${avatarUrl}`} alt={username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={avatarUrl?.startsWith("http") ? avatarUrl : `https://maps-and-roads-backend-production.up.railway.app${avatarUrl}`} alt={username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
                 <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #f59e2a, #e07f0a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.4, fontWeight: 700, color: '#fff' }}>
                     {username.charAt(0).toUpperCase()}
@@ -372,9 +372,9 @@ const Chat = () => {
                                                                 <div style={{ backgroundColor: isMine ? '#f59e2a' : (isDark ? '#44403c' : '#f5f5f4'), color: isMine ? '#fff' : text, padding: '10px 14px', borderRadius: msg.replyTo ? (isMine ? '0 18px 4px 18px' : '18px 0 18px 4px') : (isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px'), fontSize: '14px', lineHeight: 1.5, wordBreak: 'break-word' }}>
                                                                     {msg.fileUrl ? (
                                                                         msg.fileType?.startsWith('image') ? (
-                                                                            <img src={`http://localhost:8080${msg.fileUrl}`} alt="fayl" style={{ maxWidth: '200px', borderRadius: '8px' }} />
+                                                                            <img src={msg.fileUrl?.startsWith("http") ? msg.fileUrl : `https://maps-and-roads-backend-production.up.railway.app${msg.fileUrl}`} alt="fayl" style={{ maxWidth: '200px', borderRadius: '8px' }} />
                                                                         ) : (
-                                                                            <a href={`http://localhost:8080${msg.fileUrl}`} target="_blank" rel="noopener noreferrer" style={{ color: isMine ? '#fff' : '#f59e2a', textDecoration: 'underline' }}>📎 {msg.content}</a>
+                                                                            <a href={msg.fileUrl?.startsWith("http") ? msg.fileUrl : `https://maps-and-roads-backend-production.up.railway.app${msg.fileUrl}`} target="_blank" rel="noopener noreferrer" style={{ color: isMine ? '#fff' : '#f59e2a', textDecoration: 'underline' }}>📎 {msg.content}</a>
                                                                         )
                                                                     ) : msg.content}
                                                                 </div>
