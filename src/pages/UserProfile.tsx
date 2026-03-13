@@ -63,7 +63,7 @@ const UserProfile = () => {
         <div style={{ backgroundColor: bg, minHeight: '100vh', paddingTop: '40px', paddingBottom: '60px', transition: 'background-color 0.3s' }}>
 
             <Helmet>
-                <title>{profile.username} — Maps & Roads</title>
+                <title>{profile.username} — TravelBlog</title>
                 <meta name="description" content={profile.bio || `${profile.username} tərəfindən ${profile.totalPosts} səyahət hekayəsi.`} />
             </Helmet>
 
@@ -84,7 +84,7 @@ const UserProfile = () => {
                             boxShadow: '0 4px 16px rgba(245,158,42,0.35)'
                         }}>
                             {profile.avatarUrl ? (
-                                <img src={`http://localhost:8080${profile.avatarUrl}`}
+                                <img src={profile.avatarUrl?.startsWith("http") ? profile.avatarUrl : `https://maps-and-roads-backend-production.up.railway.app${profile.avatarUrl}`}
                                      alt={profile.username}
                                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
